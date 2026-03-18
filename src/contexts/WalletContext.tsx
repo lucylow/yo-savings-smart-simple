@@ -30,6 +30,7 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   const [chainId, setChainId] = useState<number | null>(null);
   const [isConnecting, setIsConnecting] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(() => authApi.isAuthenticated());
+  const [isMock, setIsMock] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const signOut = useCallback(() => {
