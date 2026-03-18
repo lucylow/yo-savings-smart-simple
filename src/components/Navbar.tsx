@@ -18,7 +18,7 @@ const Navbar = () => {
         </div>
 
         <motion.a
-          href="#demo"
+          href="/app"
           className="hidden md:inline-flex h-10 px-5 items-center rounded-lg bg-primary text-primary-foreground text-sm font-bold"
           whileHover={{ scale: 0.98 }}
           whileTap={{ scale: 0.95 }}
