@@ -1,12 +1,22 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useVaults } from '@yo-protocol/react';
-import type { VaultInfo, SupportedNetwork } from '../types';
+import type { SupportedNetwork } from '../types';
 import { DEFAULT_NETWORK } from '../utils/constants';
 
+interface VaultItem {
+  address?: string;
+  name?: string;
+  apy?: number;
+  tvl?: string;
+  network?: string;
+  assetSymbol?: string;
+  [key: string]: any;
+}
+
 interface VaultContextType {
-  selectedVault: VaultInfo | null;
-  setSelectedVault: (vault: VaultInfo) => void;
-  vaults: VaultInfo[];
+  selectedVault: VaultItem | null;
+  setSelectedVault: (vault: VaultItem) => void;
+  vaults: VaultItem[];
   loading: boolean;
   error: string | null;
   network: SupportedNetwork;
@@ -17,13 +27,14 @@ const VaultContext = createContext<VaultContextType | undefined>(undefined);
 
 export const VaultProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [network, setNetwork] = useState<SupportedNetwork>(DEFAULT_NETWORK);
-  const [selectedVault, setSelectedVault] = useState<VaultInfo | null>(null);
+  const [selectedVault, setSelectedVault] = useState<VaultItem | null>(null);
 
-  const { vaults, loading, error } = useVaults({ network, includeTestnets: import.meta.env.DEV } as any);
+  const { vaults, isLoading, error } = useVaults() as any;
 
   useEffect(() => {
-    if (vaults && (vaults as any[]).length > 0 && !selectedVault) {
-      setSelectedVault((vaults as any[])[0]);
+    const list = (vaults || []) as VaultItem[];
+    if (list.length > 0 && !selectedVault) {
+      setSelectedVault(list[0]);
     }
   }, [vaults, selectedVault]);
 
@@ -31,8 +42,8 @@ export const VaultProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     <VaultContext.Provider value={{
       selectedVault,
       setSelectedVault,
-      vaults: (vaults || []) as VaultInfo[],
-      loading,
+      vaults: (vaults || []) as VaultItem[],
+      loading: isLoading ?? false,
       error: (error as any)?.message || null,
       network,
       setNetwork
