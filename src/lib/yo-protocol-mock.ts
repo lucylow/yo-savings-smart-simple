@@ -112,12 +112,10 @@ export function useRedeem(_opts?: any) {
 }
 
 export function useVaultState(_vaultId?: any, _opts?: any) {
-  return {
-    vaultState: { apy: 5.2, tvl: '1250000' },
-    isLoading: false,
-    error: null,
-    refetch: () => {},
-  };
+  const [vaultState] = useState({ apy: 5.2, tvl: '1250000' });
+  const [isLoading] = useState(false);
+  const [error] = useState(null);
+  return { vaultState, isLoading, error, refetch: () => {} };
 }
 
 export function useUserPosition(_vaultId?: any, _account?: any, _opts?: any) {
