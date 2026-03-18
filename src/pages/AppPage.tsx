@@ -6,6 +6,9 @@ import VaultSelector from '../components/app/VaultSelector';
 import BalanceDisplay from '../components/app/BalanceDisplay';
 import DepositForm from '../components/app/DepositForm';
 import WithdrawForm from '../components/app/WithdrawForm';
+import SiweLoginButton from '../components/app/SiweLoginButton';
+import TransactionHistory from '../components/app/TransactionHistory';
+import RecurringSettings from '../components/app/RecurringSettings';
 import { useWalletContext } from '../contexts/WalletContext';
 
 const AppContent = () => {
@@ -14,7 +17,7 @@ const AppContent = () => {
   return (
     <div className="min-h-screen bg-background">
       <AppHeader />
-      <main className="container max-w-md mx-auto py-8 space-y-6">
+      <main className="container max-w-md mx-auto py-8 space-y-6 pb-24">
         {!account ? (
           <AppCard>
             <div className="text-center py-8 space-y-3">
@@ -24,14 +27,22 @@ const AppContent = () => {
           </AppCard>
         ) : (
           <>
+            {/* Balance */}
             <AppCard>
               <BalanceDisplay />
             </AppCard>
 
+            {/* SIWE Auth */}
+            <AppCard>
+              <SiweLoginButton />
+            </AppCard>
+
+            {/* Vault selector */}
             <AppCard>
               <VaultSelector />
             </AppCard>
 
+            {/* Deposit / Withdraw */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <AppCard>
                 <DepositForm />
@@ -40,6 +51,16 @@ const AppContent = () => {
                 <WithdrawForm />
               </AppCard>
             </div>
+
+            {/* Recurring deposits */}
+            <AppCard>
+              <RecurringSettings />
+            </AppCard>
+
+            {/* Transaction history */}
+            <AppCard>
+              <TransactionHistory />
+            </AppCard>
           </>
         )}
       </main>
