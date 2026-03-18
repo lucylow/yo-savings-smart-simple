@@ -15,7 +15,7 @@ const ConnectWalletButton: React.FC = () => {
             <span className={`relative inline-flex rounded-full h-2 w-2 ${isMock ? 'bg-amber-400' : 'bg-primary'}`} />
           </span>
           <span className="text-xs text-foreground font-mono truncate max-w-[80px]">{formatAddress(account)}</span>
-          {isMock && <span className="text-[9px] font-bold text-amber-500 bg-amber-500/10 px-1 py-0.5 rounded shrink-0">MOCK</span>}
+          {isMock && <span className="text-[9px] font-bold text-amber-500 bg-amber-500/10 px-1 py-0.5 rounded shrink-0">DEMO</span>}
         </div>
         {!isMock && !isAuthenticated && (
           <AppButton variant="ghost" onClick={signIn} className="h-8 px-2.5 text-xs">
