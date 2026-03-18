@@ -40,7 +40,7 @@ const SettingsView: React.FC = () => {
               <div className="min-w-0">
                 <p className="text-sm font-medium text-foreground truncate">{account ? formatAddress(account) : 'Not connected'}</p>
                 <p className="text-[10px] text-muted-foreground">
-                  {isMock ? 'Mock Wallet' : isAuthenticated ? 'Authenticated' : 'Connected'}
+                  {isMock ? 'Demo Wallet' : isAuthenticated ? 'Authenticated' : 'Connected'}
                   {chainId && ` · Chain ${chainId}`}
                 </p>
               </div>
