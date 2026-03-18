@@ -13,7 +13,7 @@ const CTA = () => {
           </p>
           <div className="flex items-center justify-center gap-3 pt-2">
             <motion.a
-              href="#demo"
+              href="/app"
               className="inline-flex h-12 px-7 items-center rounded-xl bg-primary text-primary-foreground text-sm font-bold shadow-drop"
               whileHover={{ scale: 0.98 }}
               whileTap={{ scale: 0.95 }}
