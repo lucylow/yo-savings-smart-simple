@@ -6,6 +6,8 @@ import VaultSelector from '../components/app/VaultSelector';
 import BalanceDisplay from '../components/app/BalanceDisplay';
 import DepositForm from '../components/app/DepositForm';
 import WithdrawForm from '../components/app/WithdrawForm';
+import CrossChainDeposit from '../components/app/CrossChainDeposit';
+import PortfolioView from '../components/app/PortfolioView';
 import RedemptionStatus from '../components/app/RedemptionStatus';
 import SiweLoginButton from '../components/app/SiweLoginButton';
 import TransactionHistory from '../components/app/TransactionHistory';
@@ -36,6 +38,11 @@ const AppContent = () => {
           </AppCard>
         ) : (
           <>
+            {/* Portfolio overview */}
+            <AppCard>
+              <PortfolioView />
+            </AppCard>
+
             {/* Balance */}
             <AppCard>
               <BalanceDisplay />
@@ -54,7 +61,12 @@ const AppContent = () => {
               <VaultSelector />
             </AppCard>
 
-            {/* Deposit / Withdraw */}
+            {/* Cross-chain deposit */}
+            <AppCard>
+              <CrossChainDeposit />
+            </AppCard>
+
+            {/* Standard Deposit / Withdraw */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <AppCard>
                 <DepositForm />

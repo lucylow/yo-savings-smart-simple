@@ -1,3 +1,5 @@
+export { NETWORKS, DEPOSIT_SOURCE_NETWORKS, type NetworkId } from '../config/networks';
+
 export const SUPPORTED_NETWORKS = ['ethereum', 'arbitrum', 'base'] as const;
 export type SupportedNetwork = typeof SUPPORTED_NETWORKS[number];
 
