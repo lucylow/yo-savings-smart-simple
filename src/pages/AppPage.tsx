@@ -1,7 +1,12 @@
+import { WagmiProvider } from 'wagmi';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { wagmiConfig } from '../config/wagmiConfig';
 import { WalletProvider } from '../contexts/WalletContext';
 import { VaultProvider } from '../contexts/VaultContext';
 import { UserProvider } from '../contexts/UserContext';
 import { TransactionProvider } from '../contexts/TransactionContext';
+
+const wagmiQueryClient = new QueryClient();
 import AppHeader from '../components/app/AppHeader';
 import AppCard from '../components/app/AppCard';
 import VaultSelector from '../components/app/VaultSelector';
