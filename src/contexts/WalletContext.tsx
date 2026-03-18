@@ -43,12 +43,23 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     setProvider(null);
     setSigner(null);
     setChainId(null);
+    setIsMock(false);
     signOut();
     if ((window as any).ethereum) {
       (window as any).ethereum.removeAllListeners?.('accountsChanged');
       (window as any).ethereum.removeAllListeners?.('chainChanged');
     }
   }, [signOut]);
+
+  const connectMock = useCallback(() => {
+    setAccount(MOCK_ADDRESS);
+    setProvider(null);
+    setSigner(null);
+    setChainId(8453); // Base
+    setIsMock(true);
+    setIsAuthenticated(true);
+    setError(null);
+  }, []);
 
   const signInWithProvider = useCallback(async (web3Provider: ethers.providers.Web3Provider, address: string) => {
     try {
