@@ -3,17 +3,21 @@ import { ethers } from 'ethers';
 import { SiweMessage } from 'siwe';
 import { authApi } from '../utils/api';
 
+const MOCK_ADDRESS = '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045'; // vitalik.eth
+
 interface WalletContextType {
   account: string | null;
   provider: ethers.providers.Web3Provider | null;
   signer: ethers.Signer | null;
   chainId: number | null;
   connect: () => Promise<void>;
+  connectMock: () => void;
   disconnect: () => void;
   signIn: () => Promise<void>;
   signOut: () => void;
   isConnecting: boolean;
   isAuthenticated: boolean;
+  isMock: boolean;
   error: string | null;
 }
 
