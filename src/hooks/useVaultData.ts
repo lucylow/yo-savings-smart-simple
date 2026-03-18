@@ -1,4 +1,4 @@
-import { useVaultState, useUserPosition, useVaultSnapshot } from '@yo-protocol/react';
+import { useVaultState, useUserPosition } from '@yo-protocol/react';
 import { useWallet } from './useWallet';
 import { useVaultContext } from '../contexts/VaultContext';
 
