@@ -1,26 +1,9 @@
 import React, { createContext, useContext, useEffect, useState, useCallback, ReactNode } from 'react';
 import { useWalletContext } from './WalletContext';
-import { userApi, recurringApi } from '../utils/api';
-
-interface RecurringDeposit {
-  enabled: boolean;
-  amount: string;
-  frequency: 'daily' | 'weekly' | 'monthly';
-  nextExecution: string | null;
-}
-
-interface UserProfile {
-  address: string;
-  preferredVault: {
-    address: string;
-    network: string;
-    name: string;
-  } | null;
-  recurringDeposit: RecurringDeposit;
-}
+import { userApi, recurringApi, type ApiUser, type RecurringDeposit } from '../utils/api';
 
 interface UserContextType {
-  profile: UserProfile | null;
+  profile: ApiUser | null;
   loading: boolean;
   error: string | null;
   refreshProfile: () => Promise<void>;
@@ -32,7 +15,7 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { account, isAuthenticated } = useWalletContext();
-  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [profile, setProfile] = useState<ApiUser | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -43,8 +26,8 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     try {
       const data = await userApi.getProfile();
       setProfile(data);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) setError(err.message);
     } finally {
       setLoading(false);
     }

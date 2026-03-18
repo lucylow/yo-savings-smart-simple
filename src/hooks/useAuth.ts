@@ -1,11 +1,11 @@
 import { useState, useCallback } from 'react';
 import { SiweMessage } from 'siwe';
 import { ethers } from 'ethers';
-import { authApi, userApi } from '../utils/api';
+import { authApi, userApi, ApiError, type ApiUser } from '../utils/api';
 
 interface AuthState {
   isAuthenticated: boolean;
-  user: any | null;
+  user: ApiUser | null;
   isLoading: boolean;
   error: string | null;
 }
@@ -22,10 +22,8 @@ export const useAuth = () => {
     setState((s) => ({ ...s, isLoading: true, error: null }));
 
     try {
-      // 1. Get nonce from backend
       const { nonce } = await authApi.getNonce(address);
 
-      // 2. Create SIWE message
       const message = new SiweMessage({
         domain: window.location.host,
         address,
@@ -37,11 +35,7 @@ export const useAuth = () => {
       });
 
       const messageToSign = message.prepareMessage();
-
-      // 3. Sign message with wallet
       const signature = await signer.signMessage(messageToSign);
-
-      // 4. Verify with backend and get JWT
       const data = await authApi.verify(messageToSign, signature);
 
       setState({
@@ -52,12 +46,9 @@ export const useAuth = () => {
       });
 
       return data;
-    } catch (err: any) {
-      setState((s) => ({
-        ...s,
-        isLoading: false,
-        error: err.message || 'Sign-in failed',
-      }));
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Sign-in failed';
+      setState((s) => ({ ...s, isLoading: false, error: message }));
       throw err;
     }
   }, []);
@@ -72,10 +63,11 @@ export const useAuth = () => {
     try {
       const user = await userApi.getProfile();
       setState((s) => ({ ...s, user, isAuthenticated: true }));
-    } catch {
-      // Token may be expired
-      authApi.logout();
-      setState((s) => ({ ...s, isAuthenticated: false, user: null }));
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 401) {
+        authApi.logout();
+        setState((s) => ({ ...s, isAuthenticated: false, user: null }));
+      }
     }
   }, []);
 
