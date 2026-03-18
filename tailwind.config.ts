@@ -77,6 +77,7 @@ export default {
         inset: "var(--shadow-inset)",
         drop: "var(--shadow-drop)",
         heavy: "var(--shadow-heavy)",
+        glow: "var(--shadow-glow)",
       },
       keyframes: {
         "accordion-down": {
