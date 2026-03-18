@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { ethers } from 'ethers';
+import { SiweMessage } from 'siwe';
+import { authApi } from '../utils/api';
 
 interface WalletContextType {
   account: string | null;
@@ -8,7 +10,10 @@ interface WalletContextType {
   chainId: number | null;
   connect: () => Promise<void>;
   disconnect: () => void;
+  signIn: () => Promise<void>;
+  signOut: () => void;
   isConnecting: boolean;
+  isAuthenticated: boolean;
   error: string | null;
 }
 
@@ -20,18 +25,61 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   const [signer, setSigner] = useState<ethers.Signer | null>(null);
   const [chainId, setChainId] = useState<number | null>(null);
   const [isConnecting, setIsConnecting] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(() => authApi.isAuthenticated());
   const [error, setError] = useState<string | null>(null);
+
+  const signOut = useCallback(() => {
+    authApi.logout();
+    setIsAuthenticated(false);
+  }, []);
 
   const disconnect = useCallback(() => {
     setAccount(null);
     setProvider(null);
     setSigner(null);
     setChainId(null);
+    signOut();
     if ((window as any).ethereum) {
       (window as any).ethereum.removeAllListeners?.('accountsChanged');
       (window as any).ethereum.removeAllListeners?.('chainChanged');
     }
+  }, [signOut]);
+
+  const signInWithProvider = useCallback(async (web3Provider: ethers.providers.Web3Provider, address: string) => {
+    try {
+      const { nonce } = await authApi.getNonce(address);
+
+      const network = await web3Provider.getNetwork();
+      const message = new SiweMessage({
+        domain: window.location.host,
+        address,
+        statement: 'Sign in to YO Savings Widget',
+        uri: window.location.origin,
+        version: '1',
+        chainId: network.chainId,
+        nonce,
+      });
+
+      const messageToSign = message.prepareMessage();
+      const signature = await web3Provider.getSigner().signMessage(messageToSign);
+
+      await authApi.verify(messageToSign, signature);
+      setIsAuthenticated(true);
+    } catch (err: any) {
+      console.error('Sign-in failed:', err);
+      // Don't block wallet connection if sign-in fails
+    }
   }, []);
+
+  const signIn = useCallback(async () => {
+    if (!provider || !account) return;
+    setError(null);
+    try {
+      await signInWithProvider(provider, account);
+    } catch (err: any) {
+      setError('Authentication failed. Please try again.');
+    }
+  }, [provider, account, signInWithProvider]);
 
   const connect = useCallback(async () => {
     if (!(window as any).ethereum) {
@@ -65,12 +113,17 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       (window as any).ethereum.on('chainChanged', (newChainId: string) => {
         setChainId(parseInt(newChainId, 16));
       });
+
+      // Auto sign-in after wallet connection
+      if (!authApi.isAuthenticated()) {
+        await signInWithProvider(web3Provider, addr);
+      }
     } catch (err: any) {
       setError(err.message || 'Failed to connect wallet');
     } finally {
       setIsConnecting(false);
     }
-  }, [disconnect]);
+  }, [disconnect, signInWithProvider]);
 
   useEffect(() => {
     if ((window as any).ethereum?.selectedAddress) {
@@ -85,7 +138,7 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   }, []);
 
   return (
-    <WalletContext.Provider value={{ account, provider, signer, chainId, connect, disconnect, isConnecting, error }}>
+    <WalletContext.Provider value={{ account, provider, signer, chainId, connect, disconnect, signIn, signOut, isConnecting, isAuthenticated, error }}>
       {children}
     </WalletContext.Provider>
   );

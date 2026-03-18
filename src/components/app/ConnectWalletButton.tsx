@@ -4,7 +4,7 @@ import { formatAddress } from '../../utils/formatters';
 import AppButton from './AppButton';
 
 const ConnectWalletButton: React.FC = () => {
-  const { account, connect, disconnect, isConnecting, error } = useWallet();
+  const { account, connect, disconnect, signIn, signOut, isConnecting, isAuthenticated, error } = useWallet();
 
   if (account) {
     return (
@@ -16,6 +16,15 @@ const ConnectWalletButton: React.FC = () => {
           </span>
           <span className="text-xs text-muted-foreground font-mono">{formatAddress(account)}</span>
         </div>
+        {isAuthenticated ? (
+          <AppButton variant="ghost" onClick={signOut} className="h-8 px-3 text-xs">
+            Sign Out
+          </AppButton>
+        ) : (
+          <AppButton variant="secondary" onClick={signIn} className="h-8 px-3 text-xs">
+            Sign In
+          </AppButton>
+        )}
         <AppButton variant="ghost" onClick={disconnect} className="h-8 px-3 text-xs">
           Disconnect
         </AppButton>

@@ -1,32 +1,28 @@
 import React, { useEffect, useState } from 'react';
-import { recurringApi, authApi } from '../../utils/api';
+import { useUser } from '../../contexts/UserContext';
 import AppButton from './AppButton';
 
 const RecurringSettings: React.FC = () => {
+  const { profile, updateRecurringDeposit, loading } = useUser();
   const [enabled, setEnabled] = useState(false);
   const [amount, setAmount] = useState('');
-  const [frequency, setFrequency] = useState('weekly');
+  const [frequency, setFrequency] = useState<'daily' | 'weekly' | 'monthly'>('weekly');
   const [saving, setSaving] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!authApi.isAuthenticated()) return;
-
-    recurringApi
-      .getSettings()
-      .then((settings) => {
-        setEnabled(settings.enabled);
-        setAmount(settings.amount || '');
-        setFrequency(settings.frequency || 'weekly');
-      })
-      .catch(console.error);
-  }, []);
+    if (profile?.recurringDeposit) {
+      setEnabled(profile.recurringDeposit.enabled);
+      setAmount(profile.recurringDeposit.amount || '');
+      setFrequency(profile.recurringDeposit.frequency || 'weekly');
+    }
+  }, [profile]);
 
   const handleSave = async () => {
     setSaving(true);
     setStatus(null);
     try {
-      await recurringApi.updateSettings(enabled, amount, frequency);
+      await updateRecurringDeposit({ enabled, amount, frequency, nextExecution: null });
       setStatus('Settings saved');
       setTimeout(() => setStatus(null), 3000);
     } catch (err: any) {
@@ -35,14 +31,6 @@ const RecurringSettings: React.FC = () => {
       setSaving(false);
     }
   };
-
-  if (!authApi.isAuthenticated()) {
-    return (
-      <p className="text-xs text-muted-foreground text-center py-4">
-        Sign in to manage recurring deposits
-      </p>
-    );
-  }
 
   return (
     <div className="space-y-4">
@@ -90,7 +78,7 @@ const RecurringSettings: React.FC = () => {
             </label>
             <select
               value={frequency}
-              onChange={(e) => setFrequency(e.target.value)}
+              onChange={(e) => setFrequency(e.target.value as any)}
               className="w-full h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
             >
               <option value="daily">Daily</option>
@@ -101,11 +89,17 @@ const RecurringSettings: React.FC = () => {
         </>
       )}
 
-      <AppButton variant="secondary" onClick={handleSave} isLoading={saving} className="w-full">
+      <AppButton variant="secondary" onClick={handleSave} isLoading={saving || loading} className="w-full">
         Save Settings
       </AppButton>
 
       {status && <p className="text-xs text-primary text-center">{status}</p>}
+
+      {profile?.recurringDeposit?.nextExecution && (
+        <p className="text-[10px] text-muted-foreground text-center">
+          Next deposit: {new Date(profile.recurringDeposit.nextExecution).toLocaleDateString()}
+        </p>
+      )}
 
       <p className="text-[10px] text-muted-foreground leading-relaxed">
         When a recurring deposit is due, you'll be prompted to confirm the transaction in your wallet.

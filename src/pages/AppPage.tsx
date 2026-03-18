@@ -1,5 +1,7 @@
 import { WalletProvider } from '../contexts/WalletContext';
 import { VaultProvider } from '../contexts/VaultContext';
+import { UserProvider } from '../contexts/UserContext';
+import { TransactionProvider } from '../contexts/TransactionContext';
 import AppHeader from '../components/app/AppHeader';
 import AppCard from '../components/app/AppCard';
 import VaultSelector from '../components/app/VaultSelector';
@@ -9,13 +11,12 @@ import WithdrawForm from '../components/app/WithdrawForm';
 import CrossChainDeposit from '../components/app/CrossChainDeposit';
 import PortfolioView from '../components/app/PortfolioView';
 import RedemptionStatus from '../components/app/RedemptionStatus';
-import SiweLoginButton from '../components/app/SiweLoginButton';
 import TransactionHistory from '../components/app/TransactionHistory';
 import RecurringSettings from '../components/app/RecurringSettings';
 import { useWalletContext } from '../contexts/WalletContext';
 
 const AppContent = () => {
-  const { account, error: walletError } = useWalletContext();
+  const { account, isAuthenticated, error: walletError } = useWalletContext();
 
   return (
     <div className="min-h-screen bg-background">
@@ -51,11 +52,6 @@ const AppContent = () => {
             {/* Pending redemption tracker */}
             <RedemptionStatus />
 
-            {/* SIWE Auth */}
-            <AppCard>
-              <SiweLoginButton />
-            </AppCard>
-
             {/* Vault selector */}
             <AppCard>
               <VaultSelector />
@@ -76,15 +72,17 @@ const AppContent = () => {
               </AppCard>
             </div>
 
-            {/* Recurring deposits */}
-            <AppCard>
-              <RecurringSettings />
-            </AppCard>
-
-            {/* Transaction history */}
-            <AppCard>
-              <TransactionHistory />
-            </AppCard>
+            {/* Authenticated features */}
+            {isAuthenticated && (
+              <>
+                <AppCard>
+                  <RecurringSettings />
+                </AppCard>
+                <AppCard>
+                  <TransactionHistory />
+                </AppCard>
+              </>
+            )}
           </>
         )}
       </main>
@@ -95,9 +93,13 @@ const AppContent = () => {
 const AppPage = () => {
   return (
     <WalletProvider>
-      <VaultProvider>
-        <AppContent />
-      </VaultProvider>
+      <UserProvider>
+        <TransactionProvider>
+          <VaultProvider>
+            <AppContent />
+          </VaultProvider>
+        </TransactionProvider>
+      </UserProvider>
     </WalletProvider>
   );
 };
