@@ -33,11 +33,10 @@ const MOCK_VAULTS = [
 ];
 
 export function useVaults() {
-  return {
-    vaults: MOCK_VAULTS,
-    isLoading: false,
-    error: null,
-  };
+  const [vaults] = useState(MOCK_VAULTS);
+  const [isLoading] = useState(false);
+  const [error] = useState(null);
+  return { vaults, isLoading, error };
 }
 
 export function useDeposit(_opts?: any) {
@@ -113,19 +112,15 @@ export function useRedeem(_opts?: any) {
 }
 
 export function useVaultState(_vaultId?: any, _opts?: any) {
-  return {
-    vaultState: { apy: 5.2, tvl: '1250000' },
-    isLoading: false,
-    error: null,
-    refetch: () => {},
-  };
+  const [vaultState] = useState({ apy: 5.2, tvl: '1250000' });
+  const [isLoading] = useState(false);
+  const [error] = useState(null);
+  return { vaultState, isLoading, error, refetch: () => {} };
 }
 
 export function useUserPosition(_vaultId?: any, _account?: any, _opts?: any) {
-  return {
-    position: { assets: 0, balance: 0, shares: 0 },
-    isLoading: false,
-    error: null,
-    refetch: () => {},
-  };
+  const [position] = useState({ assets: 0, balance: 0, shares: 0 });
+  const [isLoading] = useState(false);
+  const [error] = useState(null);
+  return { position, isLoading, error, refetch: () => {} };
 }
