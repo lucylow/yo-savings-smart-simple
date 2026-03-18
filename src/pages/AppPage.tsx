@@ -6,18 +6,27 @@ import VaultSelector from '../components/app/VaultSelector';
 import BalanceDisplay from '../components/app/BalanceDisplay';
 import DepositForm from '../components/app/DepositForm';
 import WithdrawForm from '../components/app/WithdrawForm';
+import RedemptionStatus from '../components/app/RedemptionStatus';
 import SiweLoginButton from '../components/app/SiweLoginButton';
 import TransactionHistory from '../components/app/TransactionHistory';
 import RecurringSettings from '../components/app/RecurringSettings';
 import { useWalletContext } from '../contexts/WalletContext';
 
 const AppContent = () => {
-  const { account } = useWalletContext();
+  const { account, error: walletError } = useWalletContext();
 
   return (
     <div className="min-h-screen bg-background">
       <AppHeader />
       <main className="container max-w-md mx-auto py-8 space-y-6 pb-24">
+        {walletError && (
+          <AppCard>
+            <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/20">
+              <p className="text-xs text-destructive">{walletError}</p>
+            </div>
+          </AppCard>
+        )}
+
         {!account ? (
           <AppCard>
             <div className="text-center py-8 space-y-3">
@@ -31,6 +40,9 @@ const AppContent = () => {
             <AppCard>
               <BalanceDisplay />
             </AppCard>
+
+            {/* Pending redemption tracker */}
+            <RedemptionStatus />
 
             {/* SIWE Auth */}
             <AppCard>

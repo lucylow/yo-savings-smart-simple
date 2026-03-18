@@ -8,14 +8,40 @@ export const useVaultData = () => {
 
   const vaultId = selectedVault?.address || selectedVault?.name || '';
 
-  // Use the SDK hooks with proper typing
-  const { vaultState, isLoading: stateLoading } = useVaultState(vaultId as any, { enabled: !!vaultId }) as any;
-  const { position, isLoading: positionLoading } = useUserPosition(vaultId as any, account as any, { enabled: !!(vaultId && account) }) as any;
+  const {
+    vaultState,
+    isLoading: stateLoading,
+    error: stateError,
+    refetch: refetchState,
+  } = useVaultState(vaultId as any, { enabled: !!vaultId }) as any;
+
+  const {
+    position,
+    isLoading: positionLoading,
+    error: positionError,
+    refetch: refetchPosition,
+  } = useUserPosition(vaultId as any, account as any, {
+    enabled: !!(vaultId && account),
+  }) as any;
+
+  // Snapshot data if available via vault stats
+  const snapshot = (vaultState as any)?.snapshot ?? null;
+  const snapshotLoading = false;
+
+  const error = stateError || positionError;
+
+  const refetch = () => {
+    refetchState?.();
+    refetchPosition?.();
+  };
 
   return {
     vaultState,
     position,
-    isLoading: stateLoading || positionLoading,
+    snapshot,
+    isLoading: stateLoading || positionLoading || snapshotLoading,
+    error,
+    refetch,
     selectedVault,
     account,
   };
