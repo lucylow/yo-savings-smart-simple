@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { useVaults } from '@yo-protocol/react';
+import { useVaults } from '../lib/yo-protocol-mock';
 import type { SupportedNetwork } from '../types';
 import { DEFAULT_NETWORK } from '../utils/constants';
 

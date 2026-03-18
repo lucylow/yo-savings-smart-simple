@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useDeposit } from '@yo-protocol/react';
+import { useDeposit } from '../../lib/yo-protocol-mock';
 import { useWallet } from '../../hooks/useWallet';
 import { useVaultContext } from '../../contexts/VaultContext';
 import {
