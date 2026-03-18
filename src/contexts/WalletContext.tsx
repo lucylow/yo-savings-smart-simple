@@ -154,7 +154,7 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   }, []);
 
   return (
-    <WalletContext.Provider value={{ account, provider, signer, chainId, connect, disconnect, signIn, signOut, isConnecting, isAuthenticated, error }}>
+    <WalletContext.Provider value={{ account, provider, signer, chainId, connect, connectMock, disconnect, signIn, signOut, isConnecting, isAuthenticated, isMock, error }}>
       {children}
     </WalletContext.Provider>
   );
