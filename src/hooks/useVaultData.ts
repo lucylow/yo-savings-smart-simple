@@ -1,4 +1,4 @@
-import { useVaultState, useUserPosition } from '@yo-protocol/react';
+import { useVaultState, useUserPosition, useVaultSnapshot } from '@yo-protocol/react';
 import { useWallet } from './useWallet';
 import { useVaultContext } from '../contexts/VaultContext';
 
@@ -8,14 +8,42 @@ export const useVaultData = () => {
 
   const vaultId = selectedVault?.address || selectedVault?.name || '';
 
-  // Use the SDK hooks with proper typing
-  const { vaultState, isLoading: stateLoading } = useVaultState(vaultId as any, { enabled: !!vaultId }) as any;
-  const { position, isLoading: positionLoading } = useUserPosition(vaultId as any, account as any, { enabled: !!(vaultId && account) }) as any;
+  const {
+    vaultState,
+    isLoading: stateLoading,
+    error: stateError,
+    refetch: refetchState,
+  } = useVaultState(vaultId as any, { enabled: !!vaultId }) as any;
+
+  const {
+    position,
+    isLoading: positionLoading,
+    error: positionError,
+    refetch: refetchPosition,
+  } = useUserPosition(vaultId as any, account as any, {
+    enabled: !!(vaultId && account),
+  }) as any;
+
+  // Try to get snapshot for additional data (APY, TVL)
+  const {
+    snapshot,
+    isLoading: snapshotLoading,
+  } = (useVaultSnapshot as any)?.(vaultId as any, { enabled: !!vaultId }) ?? { snapshot: null, isLoading: false };
+
+  const error = stateError || positionError;
+
+  const refetch = () => {
+    refetchState?.();
+    refetchPosition?.();
+  };
 
   return {
     vaultState,
     position,
-    isLoading: stateLoading || positionLoading,
+    snapshot,
+    isLoading: stateLoading || positionLoading || snapshotLoading,
+    error,
+    refetch,
     selectedVault,
     account,
   };
