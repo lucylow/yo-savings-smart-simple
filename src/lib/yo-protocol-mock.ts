@@ -33,11 +33,10 @@ const MOCK_VAULTS = [
 ];
 
 export function useVaults() {
-  return {
-    vaults: MOCK_VAULTS,
-    isLoading: false,
-    error: null,
-  };
+  const [vaults] = useState(MOCK_VAULTS);
+  const [isLoading] = useState(false);
+  const [error] = useState(null);
+  return { vaults, isLoading, error };
 }
 
 export function useDeposit(_opts?: any) {
