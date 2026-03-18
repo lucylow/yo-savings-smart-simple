@@ -97,15 +97,19 @@ const AppContent = () => {
 
 const AppPage = () => {
   return (
-    <WalletProvider>
-      <UserProvider>
-        <TransactionProvider>
-          <VaultProvider>
-            <AppContent />
-          </VaultProvider>
-        </TransactionProvider>
-      </UserProvider>
-    </WalletProvider>
+    <WagmiProvider config={wagmiConfig}>
+      <QueryClientProvider client={wagmiQueryClient}>
+        <WalletProvider>
+          <UserProvider>
+            <TransactionProvider>
+              <VaultProvider>
+                <AppContent />
+              </VaultProvider>
+            </TransactionProvider>
+          </UserProvider>
+        </WalletProvider>
+      </QueryClientProvider>
+    </WagmiProvider>
   );
 };
 
