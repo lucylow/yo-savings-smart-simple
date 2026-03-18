@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useVaults } from '@yo-protocol/react';
+import { useVaults } from '../../lib/yo-protocol-mock';
 import { useWallet } from '../../hooks/useWallet';
 import { NETWORKS, type NetworkId, getExplorerAddressUrl } from '../../config/networks';
 import ErrorDisplay from './ErrorDisplay';

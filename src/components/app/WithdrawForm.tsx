@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useRedeem } from '@yo-protocol/react';
+import { useRedeem } from '../../lib/yo-protocol-mock';
 import { useWallet } from '../../hooks/useWallet';
 import { useVaultContext } from '../../contexts/VaultContext';
 import { useVaultData } from '../../hooks/useVaultData';
