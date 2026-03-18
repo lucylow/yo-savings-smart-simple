@@ -3,17 +3,21 @@ import { ethers } from 'ethers';
 import { SiweMessage } from 'siwe';
 import { authApi } from '../utils/api';
 
+const MOCK_ADDRESS = '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045'; // vitalik.eth
+
 interface WalletContextType {
   account: string | null;
   provider: ethers.providers.Web3Provider | null;
   signer: ethers.Signer | null;
   chainId: number | null;
   connect: () => Promise<void>;
+  connectMock: () => void;
   disconnect: () => void;
   signIn: () => Promise<void>;
   signOut: () => void;
   isConnecting: boolean;
   isAuthenticated: boolean;
+  isMock: boolean;
   error: string | null;
 }
 
@@ -26,6 +30,7 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   const [chainId, setChainId] = useState<number | null>(null);
   const [isConnecting, setIsConnecting] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(() => authApi.isAuthenticated());
+  const [isMock, setIsMock] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const signOut = useCallback(() => {
@@ -38,12 +43,23 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     setProvider(null);
     setSigner(null);
     setChainId(null);
+    setIsMock(false);
     signOut();
     if ((window as any).ethereum) {
       (window as any).ethereum.removeAllListeners?.('accountsChanged');
       (window as any).ethereum.removeAllListeners?.('chainChanged');
     }
   }, [signOut]);
+
+  const connectMock = useCallback(() => {
+    setAccount(MOCK_ADDRESS);
+    setProvider(null);
+    setSigner(null);
+    setChainId(8453); // Base
+    setIsMock(true);
+    setIsAuthenticated(true);
+    setError(null);
+  }, []);
 
   const signInWithProvider = useCallback(async (web3Provider: ethers.providers.Web3Provider, address: string) => {
     try {
@@ -138,7 +154,7 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   }, []);
 
   return (
-    <WalletContext.Provider value={{ account, provider, signer, chainId, connect, disconnect, signIn, signOut, isConnecting, isAuthenticated, error }}>
+    <WalletContext.Provider value={{ account, provider, signer, chainId, connect, connectMock, disconnect, signIn, signOut, isConnecting, isAuthenticated, isMock, error }}>
       {children}
     </WalletContext.Provider>
   );
