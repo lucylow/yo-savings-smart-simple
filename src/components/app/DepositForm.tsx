@@ -15,6 +15,8 @@ const STEP_LABELS: Record<string, string> = {
   error: 'Deposit failed',
 };
 
+const MOCK_BALANCE = 2.5; // Mock wallet balance
+
 const DepositForm: React.FC = () => {
   const [amount, setAmount] = useState('');
   const { account } = useWallet();
@@ -28,27 +30,27 @@ const DepositForm: React.FC = () => {
     isLoading = false,
     isSuccess = false,
     hash,
-    approveHash,
     error: depositError,
     reset,
   } = useDeposit({ vault: vaultId } as any) as any;
+
+  const assetSymbol = (selectedVault as any)?.assetSymbol || 'ETH';
+
+  const setQuickAmount = (pct: number) => {
+    setAmount((MOCK_BALANCE * pct).toFixed(4));
+  };
 
   const handleDeposit = async () => {
     const num = parseFloat(amount);
     if (isNaN(num) || num <= 0) return;
 
     try {
-      // Convert to smallest unit (assuming 18 decimals for ETH, 6 for USDC)
       const decimals = (selectedVault as any)?.decimals ?? 18;
       const amountRaw = BigInt(Math.floor(num * 10 ** decimals));
-
-      await deposit({
-        amount: amountRaw,
-        // token address would come from vault config in production
-      });
+      await deposit({ amount: amountRaw });
       setAmount('');
     } catch {
-      // Error is captured in depositError
+      // Error captured in depositError
     }
   };
 
@@ -61,48 +63,103 @@ const DepositForm: React.FC = () => {
     return <p className="text-xs text-muted-foreground text-center py-4">Connect wallet to deposit</p>;
   }
 
+  const parsedAmount = parseFloat(amount) || 0;
+
   return (
-    <div className="space-y-3">
-      <label className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground font-bold">
-        Deposit Amount
-      </label>
-      <input
-        type="number"
-        value={amount}
-        onChange={(e) => setAmount(e.target.value)}
-        placeholder="0.00"
-        className="w-full h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary tabular-nums"
-        disabled={isLoading}
-        step="0.01"
-        min="0"
-      />
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <label className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-bold">
+          Deposit Amount
+        </label>
+        <span className="text-[10px] text-muted-foreground">
+          Balance: {MOCK_BALANCE} {assetSymbol}
+        </span>
+      </div>
+
+      {/* Amount input */}
+      <div className="relative">
+        <input
+          type="number"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          placeholder="0.00"
+          className="w-full h-14 px-4 pr-16 bg-secondary border border-border rounded-xl text-lg font-medium text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/30 tabular-nums transition-all"
+          disabled={isLoading}
+          step="0.01"
+          min="0"
+        />
+        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-muted-foreground font-medium">
+          {assetSymbol}
+        </span>
+      </div>
+
+      {/* Quick amount buttons */}
+      <div className="grid grid-cols-4 gap-2">
+        {[
+          { label: '25%', pct: 0.25 },
+          { label: '50%', pct: 0.5 },
+          { label: '75%', pct: 0.75 },
+          { label: 'Max', pct: 1 },
+        ].map((q) => (
+          <button
+            key={q.label}
+            onClick={() => setQuickAmount(q.pct)}
+            disabled={isLoading}
+            className="h-9 rounded-lg bg-card border border-border text-xs font-medium text-muted-foreground hover:text-foreground hover:border-primary/30 active:scale-95 transition-all disabled:opacity-50"
+          >
+            {q.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Transaction preview */}
+      {parsedAmount > 0 && step === 'idle' && !isSuccess && !depositError && (
+        <div className="p-3.5 rounded-xl bg-card border border-border space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] text-muted-foreground">Deposit</span>
+            <span className="text-xs text-foreground font-medium tabular-nums">{parsedAmount.toFixed(4)} {assetSymbol}</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] text-muted-foreground">Vault</span>
+            <span className="text-xs text-foreground font-medium">{(selectedVault as any)?.name || 'YO Vault'}</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] text-muted-foreground">Est. gas</span>
+            <span className="text-xs text-muted-foreground tabular-nums">~$0.02</span>
+          </div>
+          <div className="pt-2 border-t border-border flex items-center justify-between">
+            <span className="text-[10px] text-muted-foreground font-medium">New total</span>
+            <span className="text-xs text-primary font-bold tabular-nums">{parsedAmount.toFixed(4)} {assetSymbol}</span>
+          </div>
+        </div>
+      )}
 
       {/* Step indicator */}
       {step !== 'idle' && step !== 'success' && step !== 'error' && (
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <svg className="animate-spin h-3 w-3" viewBox="0 0 24 24" fill="none">
+        <div className="flex items-center gap-2 p-3 rounded-xl bg-secondary border border-border">
+          <svg className="animate-spin h-4 w-4 text-primary" viewBox="0 0 24 24" fill="none">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
           </svg>
-          {STEP_LABELS[step] || step}
+          <span className="text-xs text-foreground font-medium">{STEP_LABELS[step] || step}</span>
         </div>
       )}
 
       {/* Success */}
       {isSuccess && (
-        <div className="space-y-1">
-          <p className="text-xs text-primary font-medium">✓ Deposit confirmed!</p>
+        <div className="p-4 rounded-xl bg-primary/10 border border-primary/20 space-y-2">
+          <p className="text-sm text-primary font-bold">✓ Deposit confirmed!</p>
           {hash && (
             <a
               href={`https://basescan.org/tx/${hash}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[10px] text-muted-foreground underline hover:text-foreground"
+              className="text-xs text-muted-foreground underline hover:text-foreground"
             >
-              View transaction →
+              View on BaseScan →
             </a>
           )}
-          <button onClick={handleReset} className="text-[10px] text-primary underline">
+          <button onClick={handleReset} className="block text-xs text-primary font-medium">
             Make another deposit
           </button>
         </div>
@@ -110,21 +167,17 @@ const DepositForm: React.FC = () => {
 
       {/* Error */}
       {depositError && (
-        <ErrorDisplay
-          error={depositError}
-          onRetry={handleReset}
-          retryLabel="Try again"
-        />
+        <ErrorDisplay error={depositError} onRetry={handleReset} retryLabel="Try again" />
       )}
 
       {!isSuccess && !depositError && (
-        <AppButton variant="primary" onClick={handleDeposit} isLoading={isLoading} className="w-full">
-          Deposit
+        <AppButton variant="primary" onClick={handleDeposit} isLoading={isLoading} className="w-full" disabled={parsedAmount <= 0}>
+          {parsedAmount > 0 ? `Deposit ${parsedAmount.toFixed(4)} ${assetSymbol}` : 'Enter amount'}
         </AppButton>
       )}
 
-      <p className="text-[10px] text-muted-foreground leading-relaxed">
-        Funds are deposited into the YO vault and start earning yield immediately.
+      <p className="text-[10px] text-muted-foreground leading-relaxed text-center">
+        This is a real onchain transaction. You will need to confirm it in your wallet.
       </p>
     </div>
   );

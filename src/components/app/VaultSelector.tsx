@@ -1,49 +1,56 @@
 import React from 'react';
 import { useVaultContext } from '../../contexts/VaultContext';
-import type { SupportedNetwork } from '../../types';
-import { NETWORK_NAMES } from '../../utils/constants';
 
 const VaultSelector: React.FC = () => {
-  const { vaults, selectedVault, setSelectedVault, network, setNetwork, loading } = useVaultContext();
+  const { vaults, selectedVault, setSelectedVault, loading } = useVaultContext();
 
   return (
-    <div className="space-y-4">
-      {/* Network selector */}
-      <div className="space-y-1.5">
-        <label className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground font-bold">Network</label>
-        <select
-          value={network}
-          onChange={(e) => setNetwork(e.target.value as SupportedNetwork)}
-          className="w-full h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-        >
-          {(Object.entries(NETWORK_NAMES) as [SupportedNetwork, string][]).map(([key, name]) => (
-            <option key={key} value={key}>{name}</option>
-          ))}
-        </select>
-      </div>
+    <div className="space-y-3">
+      <h3 className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-bold">
+        Select Vault
+      </h3>
 
-      {/* Vault selector */}
-      <div className="space-y-1.5">
-        <label className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground font-bold">Vault</label>
-        {loading ? (
-          <p className="text-xs text-muted-foreground">Loading vaults...</p>
-        ) : (
-          <select
-            value={(selectedVault as any)?.address || ''}
-            onChange={(e) => {
-              const vault = vaults.find((v: any) => v.address === e.target.value);
-              if (vault) setSelectedVault(vault);
-            }}
-            className="w-full h-10 px-3 bg-secondary border border-border rounded-lg text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-          >
-            {vaults.map((vault: any) => (
-              <option key={vault.address || vault.name} value={vault.address}>
-                {vault.name || vault.address}
-              </option>
-            ))}
-          </select>
-        )}
-      </div>
+      {loading ? (
+        <div className="space-y-2">
+          {[1, 2].map((i) => (
+            <div key={i} className="h-16 bg-secondary rounded-xl animate-pulse" />
+          ))}
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {vaults.map((vault: any) => {
+            const isSelected = (selectedVault as any)?.address === vault.address;
+            return (
+              <button
+                key={vault.address || vault.name}
+                onClick={() => setSelectedVault(vault)}
+                className={`w-full flex items-center justify-between p-3.5 rounded-xl border transition-all active:scale-[0.98] ${
+                  isSelected
+                    ? 'bg-primary/5 border-primary/30 shadow-glow'
+                    : 'bg-secondary border-border hover:border-primary/20'
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-sm font-bold ${
+                    isSelected ? 'bg-primary/20 text-primary' : 'bg-muted text-muted-foreground'
+                  }`}>
+                    {vault.assetSymbol?.[0] || 'Y'}
+                  </div>
+                  <div className="text-left">
+                    <p className="text-sm font-medium text-foreground">{vault.name}</p>
+                    <p className="text-[10px] text-muted-foreground">{vault.assetSymbol} · Base</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-lg bg-lime-dim text-primary text-xs font-bold">
+                    {vault.apy ? `${Number(vault.apy).toFixed(1)}%` : '--'} APY
+                  </span>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 };
