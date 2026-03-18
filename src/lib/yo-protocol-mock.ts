@@ -119,10 +119,8 @@ export function useVaultState(_vaultId?: any, _opts?: any) {
 }
 
 export function useUserPosition(_vaultId?: any, _account?: any, _opts?: any) {
-  return {
-    position: { assets: 0, balance: 0, shares: 0 },
-    isLoading: false,
-    error: null,
-    refetch: () => {},
-  };
+  const [position] = useState({ assets: 0, balance: 0, shares: 0 });
+  const [isLoading] = useState(false);
+  const [error] = useState(null);
+  return { position, isLoading, error, refetch: () => {} };
 }
