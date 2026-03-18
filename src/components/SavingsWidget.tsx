@@ -65,9 +65,9 @@ const SavingsWidget = () => {
       className="w-full max-w-[340px] mx-auto"
     >
       {/* Outer shell */}
-      <div className="bg-card border border-border rounded-outer p-2 shadow-heavy">
+      <div className="bg-card border border-border rounded-2xl sm:rounded-outer p-1.5 sm:p-2 shadow-heavy">
         {/* Inner surface */}
-        <div className="bg-card-elevated rounded-lg p-6 shadow-inset border border-border space-y-6">
+        <div className="bg-card-elevated rounded-xl sm:rounded-lg p-5 sm:p-6 shadow-inset border border-border space-y-5 sm:space-y-6">
           {/* Connection status */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -86,13 +86,13 @@ const SavingsWidget = () => {
               Total Savings
             </p>
             <h2
-              className={`text-4xl font-medium tracking-tighter tabular-nums transition-colors duration-300 ${
+              className={`text-3xl sm:text-4xl font-medium tracking-tighter tabular-nums transition-colors duration-300 ${
                 flash ? "text-primary" : "text-foreground"
               }`}
             >
               ${displayBalance.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </h2>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
               <span className="text-xs text-muted-foreground">+${dailyEarned.toFixed(2)} earned today</span>
               <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-lime-dim text-primary text-xs font-medium">
                 5.2% APY
@@ -101,10 +101,10 @@ const SavingsWidget = () => {
           </div>
 
           {/* Action buttons */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
             <motion.button
               onClick={handleDeposit}
-              className="h-12 bg-primary text-primary-foreground font-bold rounded-xl text-sm"
+              className="h-11 sm:h-12 bg-primary text-primary-foreground font-bold rounded-xl text-sm active:scale-95 transition-transform"
               whileHover={{ scale: 0.98 }}
               whileTap={{ scale: 0.95 }}
               transition={springTransition}
@@ -113,7 +113,7 @@ const SavingsWidget = () => {
             </motion.button>
             <motion.button
               onClick={handleWithdraw}
-              className="h-12 bg-secondary border border-border text-foreground font-bold rounded-xl text-sm hover:bg-muted transition-colors"
+              className="h-11 sm:h-12 bg-secondary border border-border text-foreground font-bold rounded-xl text-sm hover:bg-muted active:scale-95 transition-all"
               whileHover={{ scale: 0.98 }}
               whileTap={{ scale: 0.95 }}
               transition={springTransition}
