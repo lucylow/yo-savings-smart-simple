@@ -24,11 +24,9 @@ export const useVaultData = () => {
     enabled: !!(vaultId && account),
   }) as any;
 
-  // Try to get snapshot for additional data (APY, TVL)
-  const {
-    snapshot,
-    isLoading: snapshotLoading,
-  } = (useVaultSnapshot as any)?.(vaultId as any, { enabled: !!vaultId }) ?? { snapshot: null, isLoading: false };
+  // Snapshot data if available via vault stats
+  const snapshot = (vaultState as any)?.snapshot ?? null;
+  const snapshotLoading = false;
 
   const error = stateError || positionError;
 
